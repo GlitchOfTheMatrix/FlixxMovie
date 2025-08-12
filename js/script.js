@@ -78,6 +78,68 @@ async function displayPopularShows() {
   });
 }
 
+// Display movie details
+async function displayMovieDetails() {
+  const movieID = window.location.search.split("=")[1];
+  const movie = await fetchAPIData(`movie/${movieID}`);
+  const div = document.createElement("div");
+  div.innerHTML = `<div class="details-top">
+          ${
+            movie.poster_path
+              ? `<div>
+                <img
+                  src="https://images.tmdb.org/t/p/w500${movie.poster_path}"
+                  class="card-img-top"
+                  alt="${movie.title}"
+                />
+              </div>`
+              : `<div>
+                <img
+                  src="images/no-image.jpg"
+                  class="card-img-top"
+                  alt="${movie.title}"
+                />
+              </div>`
+          }
+          <div>
+            <h2>${movie.title}</h2>
+            <p>
+              <i class="fas fa-star text-primary"></i>
+              ${movie.vote_average.toFixed(1)} / 10
+            </p>
+            <p class="text-muted">Release Date: ${movie.release_date}</p>
+            <p>${movie.overview}</p>
+            <h5>Genres</h5>
+            <ul class="list-group">
+            ${movie.genres.map((genre) => `<li>${genre.name}</li>`).join("")}
+            </ul>
+            <a href="${
+              movie.homepage
+            }" target="_blank" class="btn">Visit Movie Homepage</a>
+          </div>
+        </div>
+        <div class="details-bottom">
+          <h2>Movie Info</h2>
+          <ul>
+            <li><span class="text-secondary">Budget:</span> $${addCommasToNumberRegex(
+              movie.budget
+            )}</li>
+            <li><span class="text-secondary">Revenue:</span> $${addCommasToNumberRegex(
+              movie.revenue
+            )}</li>
+            <li><span class="text-secondary">Runtime:</span> ${
+              movie.runtime
+            } minutes</li>
+            <li><span class="text-secondary">Status:</span> ${movie.status}</li>
+          </ul>
+          <h4>Production Companies</h4>
+          <div class="list-group">${movie.production_companies
+            .map((company) => `<span>${company.name}</span>`)
+            .join(", ")}</div>
+        </div>`;
+  document.querySelector("#movie-details").appendChild(div);
+}
+
 // Fetch data from TMDB API
 async function fetchAPIData(endpoint) {
   const API_KEY = "7558d1f258135c1b5e1ad8bf33dca8a1"; // If it were production site, this api key would be at the backend, so that nobody could get the api key.
@@ -121,6 +183,10 @@ function highlightActiveLink() {
   });
 }
 
+function addCommasToNumberRegex(number) {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 // Init app
 function init() {
   switch (global.currentPage) {
@@ -132,7 +198,7 @@ function init() {
       displayPopularShows();
       break;
     case "/movie-details.html":
-      console.log("Movie Details");
+      displayMovieDetails();
       break;
     case "/tv-details.html":
       console.log("TV Details");
